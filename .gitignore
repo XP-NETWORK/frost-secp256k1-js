@@ -1,0 +1,6 @@
+dist
+/target
+Cargo.lock
+index.node
+index.d.ts
+node_modules
