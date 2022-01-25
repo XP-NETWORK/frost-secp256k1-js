@@ -58,6 +58,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
+          registry-url: 'https://registry.npmjs.org'
           node-version: 16
           check-latest: true
           cache: pnpm
@@ -103,8 +104,7 @@ jobs:
         run: ${{ matrix.settings.build }}
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: bindings-${{ matrix.settings.target }}
-          path: index.node
-          if-no-files-found: error
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
