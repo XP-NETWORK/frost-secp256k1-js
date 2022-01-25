@@ -1,0 +1,24 @@
+{
+  "name": "frost-linux-arm-gnueabihf",
+  "version": "1.0.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm"
+  ],
+  "main": "frost.linux-arm-gnueabihf.node",
+  "files": [
+    "frost.linux-arm-gnueabihf.node"
+  ],
+  "description": "low level JS Bindings for frost-dalek",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": "git@github.com:xp-network/frost-dalek-js.git"
+}

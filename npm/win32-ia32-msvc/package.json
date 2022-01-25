@@ -1,0 +1,24 @@
+{
+  "name": "frost-win32-ia32-msvc",
+  "version": "1.0.0",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "ia32"
+  ],
+  "main": "frost.win32-ia32-msvc.node",
+  "files": [
+    "frost.win32-ia32-msvc.node"
+  ],
+  "description": "low level JS Bindings for frost-dalek",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": "git@github.com:xp-network/frost-dalek-js.git"
+}

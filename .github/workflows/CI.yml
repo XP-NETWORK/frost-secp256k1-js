@@ -127,15 +127,13 @@ jobs:
           check-latest: true
           cache: pnpm
       - name: Install dependencies
-        run: pmpm install
+        run: yarn install
       - name: Download all artifacts
         uses: actions/download-artifact@v2
         with:
           path: artifacts
       - name: Move artifacts
         run: yarn artifacts
-      - name: List artifacts
-        run: ls -R artifacts
       - name: List packages
         run: ls -R ./npm
         shell: bash

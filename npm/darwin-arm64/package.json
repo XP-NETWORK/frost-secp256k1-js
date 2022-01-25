@@ -1,0 +1,24 @@
+{
+  "name": "frost-darwin-arm64",
+  "version": "1.0.0",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "frost.darwin-arm64.node",
+  "files": [
+    "frost.darwin-arm64.node"
+  ],
+  "description": "low level JS Bindings for frost-dalek",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "repository": "git@github.com:xp-network/frost-dalek-js.git"
+}
