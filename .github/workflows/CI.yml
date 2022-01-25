@@ -103,8 +103,10 @@ jobs:
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
+      - name: Seprate Out Artifacts
+        run: mkdir out && mv package.json out && mv dist out && mv README.md out && mv LICENSE out
       - name: Upload artifact
-        run: npm publish
+        run: npm publish out
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           
