@@ -17,7 +17,7 @@
   },
   "scripts": {
     "create-dist": "mkdir -p dist",
-    "napi:build": "napi build --release",
+    "napi:build": "napi build --release --platform",
     "napi:build:debug": "napi build",
     "build": "pnpm create-dist && pnpm napi:build && cp index.* dist",
     "build:debug": "pnpm create-dist && pnpm napi:build:debug && cp index.* dist",
