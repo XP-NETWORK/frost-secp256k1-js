@@ -4,14 +4,16 @@
   "description": "low level JS Bindings for frost-dalek",
   "main": "index.node",
   "napi": {
-    "default": false,
-    "triples": [
-      "aarch64-apple-darwin",
-      "x86_64-apple-darwin",
-      "x86_64-pc-windows-msvc",
-      "x86_64-unknown-linux-gnu",
-      "x86_64-unknown-linux-musl"
-    ]
+    "triples": {
+      "default": false,
+      "additional": [
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-msvc",
+        "x86_64-unknown-linux-gnu",
+        "x86_64-unknown-linux-musl"
+      ]
+    }
   },
   "scripts": {
     "create-dist": "mkdir -p dist",
