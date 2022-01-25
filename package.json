@@ -1,6 +1,6 @@
 {
   "name": "frost-dalek",
-  "version": "0.0.1+1",
+  "version": "0.0.2",
   "description": "low level JS Bindings for frost-dalek",
   "main": "index.node",
   "scripts": {
