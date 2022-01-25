@@ -1,0 +1,48 @@
+on:
+  push:
+    branches:
+      - "master"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: build and push
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v2
+
+      - name: install pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
+      - name: setup node.js
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: 16.x
+          cache: pnpm
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: dep
+        run: pnpm install
+
+      - name: build
+        run: pnpm build
+
+      - name: prepare package
+        run: mkdir out && mv package.json out && mv dist out && mv README.md out && mv LICENSE out
+
+      - name: prepare master release
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: dist-x86_64-unknown-linux-gnu
+          FOLDER: out
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "Build: x86_64-unknown-linux-gnu ({sha}) {msg}"
