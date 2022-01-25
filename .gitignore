@@ -3,4 +3,5 @@ dist
 Cargo.lock
 index.node
 index.d.ts
+pnpm-lock.yaml
 node_modules
