@@ -2,6 +2,10 @@
 
 Low Level JS Bindings for [frost-dalek](https://github.com/isislovecruft/frost-dalek)
 
+## Submodules
+
+This repo has submodule(s). make sure to do a recursive close
+
 ## Usage
 
 See [examples](./examples)
