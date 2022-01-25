@@ -1,15 +1,15 @@
 {
   "name": "frost-dalek",
-  "version": "0.0.1",
+  "version": "0.0.1+1",
   "description": "low level JS Bindings for frost-dalek",
   "main": "index.node",
   "scripts": {
-	"create-dist": "mkdir -p dist",
-	"napi:build": "napi build --release",
-	"napi:build:debug": "napi build",
+    "create-dist": "mkdir -p dist",
+    "napi:build": "napi build --release",
+    "napi:build:debug": "napi build",
     "build": "pnpm create-dist && pnpm napi:build && cp index.* dist",
-	"build:debug": "pnpm create-dist && pnpm napi:build:debug && cp index.* dist",
-	"build-examples": "pnpm build && tsc -p tsconfig.json"
+    "build:debug": "pnpm create-dist && pnpm napi:build:debug && cp index.* dist",
+    "build-examples": "pnpm build && tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.4.2",
