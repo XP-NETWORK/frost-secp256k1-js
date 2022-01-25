@@ -106,6 +106,8 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: install pnpm
         uses: pnpm/action-setup@v2.0.1
         with:
@@ -153,7 +155,7 @@ jobs:
         if: ${{ matrix.settings.setup }}
         shell: bash
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
@@ -161,13 +163,15 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: ${{ env.APP_NAME }}.*.node
+          path: index.node
           if-no-files-found: error
   build-freebsd:
     runs-on: macos-10.15
     name: Build FreeBSD
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: install pnpm
         uses: pnpm/action-setup@v2.0.1
         with:
@@ -204,7 +208,7 @@ jobs:
             whoami
             env
             freebsd-version
-            pnpm install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+            pnpm install
             pnpm build
             strip -x *.node
             pnpm test
@@ -233,9 +237,12 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: install pnpm
         uses: pnpm/action-setup@v2.0.1
         with:
+          submodules: 'true'
           version: latest
       - name: Setup node
         uses: actions/setup-node@v2
@@ -249,7 +256,7 @@ jobs:
           path: node_modules
           key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('pnpm.lock') }}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
@@ -278,6 +285,8 @@ jobs:
         with:
           version: latest
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Setup node
         uses: actions/setup-node@v2
         with:
@@ -290,7 +299,7 @@ jobs:
           path: node_modules
           key: npm-cache-test-linux-x64-gnu-${{ matrix.node }}-${{ hashFiles('pnpm.lock') }}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install 
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
@@ -319,6 +328,8 @@ jobs:
         with:
           version: latest
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Setup node
         uses: actions/setup-node@v2
         with:
@@ -331,7 +342,7 @@ jobs:
           path: node_modules
           key: npm-cache-test-x86_64-unknown-linux-musl-${{ matrix.node }}-${{ hashFiles('pnpm.lock') }}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
@@ -361,6 +372,8 @@ jobs:
           version: latest
       - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
@@ -375,7 +388,7 @@ jobs:
           path: node_modules
           key: npm-cache-test-linux-aarch64-gnu-${{ matrix.node }}-${{ hashFiles('pnpm.lock') }}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --ignore-platform --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install
       - name: Setup and run tests
         uses: addnab/docker-run-action@v3
         with:
@@ -397,6 +410,8 @@ jobs:
           version: latest
       - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
@@ -411,7 +426,7 @@ jobs:
           path: node_modules
           key: npm-cache-test-linux-aarch64-musl-${{ matrix.node }}-${{ hashFiles('pnpm.lock') }}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --ignore-platform --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install
       - name: Setup and run tests
         uses: addnab/docker-run-action@v3
         with:
@@ -440,6 +455,8 @@ jobs:
           version: latest
       - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
@@ -454,7 +471,7 @@ jobs:
           path: node_modules
           key: npm-cache-test-linux-arm-gnueabihf-${{ matrix.node }}-${{ hashFiles('pnpm.lock') }}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --ignore-platform --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install 
       - name: Setup and run tests
         uses: addnab/docker-run-action@v3
         with:
@@ -481,6 +498,8 @@ jobs:
         with:
           version: latest
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Setup node
         uses: actions/setup-node@v2
         with:
@@ -495,7 +514,7 @@ jobs:
           restore-keys: |
             npm-cache-
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install 
       - name: Download all artifacts
         uses: actions/download-artifact@v2
         with:
