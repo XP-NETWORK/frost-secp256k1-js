@@ -30,7 +30,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.android-arm64.node')
           } else {
-            nativeBinding = require('frost-dalek-android-arm64')
+            nativeBinding = require('frost-secp256k1-android-arm64')
           }
         } catch (e) {
           loadError = e
@@ -42,7 +42,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.android-arm-eabi.node')
           } else {
-            nativeBinding = require('frost-dalek-android-arm-eabi')
+            nativeBinding = require('frost-secp256k1-android-arm-eabi')
           }
         } catch (e) {
           loadError = e
@@ -62,7 +62,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.win32-x64-msvc.node')
           } else {
-            nativeBinding = require('frost-dalek-win32-x64-msvc')
+            nativeBinding = require('frost-secp256k1-win32-x64-msvc')
           }
         } catch (e) {
           loadError = e
@@ -76,7 +76,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.win32-ia32-msvc.node')
           } else {
-            nativeBinding = require('frost-dalek-win32-ia32-msvc')
+            nativeBinding = require('frost-secp256k1-win32-ia32-msvc')
           }
         } catch (e) {
           loadError = e
@@ -90,7 +90,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.win32-arm64-msvc.node')
           } else {
-            nativeBinding = require('frost-dalek-win32-arm64-msvc')
+            nativeBinding = require('frost-secp256k1-win32-arm64-msvc')
           }
         } catch (e) {
           loadError = e
@@ -108,7 +108,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.darwin-x64.node')
           } else {
-            nativeBinding = require('frost-dalek-darwin-x64')
+            nativeBinding = require('frost-secp256k1-darwin-x64')
           }
         } catch (e) {
           loadError = e
@@ -122,7 +122,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.darwin-arm64.node')
           } else {
-            nativeBinding = require('frost-dalek-darwin-arm64')
+            nativeBinding = require('frost-secp256k1-darwin-arm64')
           }
         } catch (e) {
           loadError = e
@@ -141,7 +141,7 @@ switch (platform) {
       if (localFileExisted) {
         nativeBinding = require('./index.freebsd-x64.node')
       } else {
-        nativeBinding = require('frost-dalek-freebsd-x64')
+        nativeBinding = require('frost-secp256k1-freebsd-x64')
       }
     } catch (e) {
       loadError = e
@@ -158,7 +158,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./index.linux-x64-musl.node')
             } else {
-              nativeBinding = require('frost-dalek-linux-x64-musl')
+              nativeBinding = require('frost-secp256k1-linux-x64-musl')
             }
           } catch (e) {
             loadError = e
@@ -171,7 +171,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./index.linux-x64-gnu.node')
             } else {
-              nativeBinding = require('frost-dalek-linux-x64-gnu')
+              nativeBinding = require('frost-secp256k1-linux-x64-gnu')
             }
           } catch (e) {
             loadError = e
@@ -187,7 +187,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./index.linux-arm64-musl.node')
             } else {
-              nativeBinding = require('frost-dalek-linux-arm64-musl')
+              nativeBinding = require('frost-secp256k1-linux-arm64-musl')
             }
           } catch (e) {
             loadError = e
@@ -200,7 +200,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./index.linux-arm64-gnu.node')
             } else {
-              nativeBinding = require('frost-dalek-linux-arm64-gnu')
+              nativeBinding = require('frost-secp256k1-linux-arm64-gnu')
             }
           } catch (e) {
             loadError = e
@@ -215,7 +215,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./index.linux-arm-gnueabihf.node')
           } else {
-            nativeBinding = require('frost-dalek-linux-arm-gnueabihf')
+            nativeBinding = require('frost-secp256k1-linux-arm-gnueabihf')
           }
         } catch (e) {
           loadError = e

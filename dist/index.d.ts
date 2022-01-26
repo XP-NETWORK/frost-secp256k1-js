@@ -40,13 +40,13 @@ export interface DeriveRes {
   pubk: PublicKeyWrapper
   gk: Buffer
 }
-export interface DualRistrettoWrap {
+export interface DualSecp256K1Wrap {
   first: Buffer
   second: Buffer
 }
 export interface PubCommitmentShareListWrapper {
   participantIndex: number
-  commitment: DualRistrettoWrap
+  commitment: DualSecp256K1Wrap
 }
 export interface GenCommitmentShareRes {
   publicCommShare: PubCommitmentShareListWrapper
@@ -54,7 +54,7 @@ export interface GenCommitmentShareRes {
 }
 export interface SignerWrapper {
   participantIndex: number
-  publishedCommitmentShare: DualRistrettoWrap
+  publishedCommitmentShare: DualSecp256K1Wrap
 }
 export interface GenAggregatorRes {
   aggregatorHandle: number
@@ -68,7 +68,7 @@ export function participate(uuid: number, numSig: number, threshold: number): Pa
 export function generateTheirSharesAndVerifyParticipants(me: ParticipantWrapper, coefficientsHandle: number, participants: Array<ParticipantWrapper>, numSig: number, threshold: number): ShareRes
 export function derivePubkAndGroupKey(stateHandle: number, me: ParticipantWrapper, mySecretShares: Array<SecretShareWrapper>): DeriveRes
 export function genCommitmentShareLists(uuid: number): GenCommitmentShareRes
-export function getAggregatorSigners(threshold: number, numSig: number, groupKey: Buffer, context: Buffer, message: Buffer, commitments: Array<DualRistrettoWrap>, publicKeys: Array<PublicKeyWrapper>): GenAggregatorRes
+export function getAggregatorSigners(threshold: number, numSig: number, groupKey: Buffer, context: Buffer, message: Buffer, commitments: Array<DualSecp256K1Wrap>, publicKeys: Array<PublicKeyWrapper>): GenAggregatorRes
 export function signPartial(secretKey: SecretKeyWrapper, groupKey: Buffer, context: Buffer, message: Buffer, secretCommShareHandle: number, signers: Array<SignerWrapper>): PartialThresholdSigWrapper
 export function aggregateSignatures(aggreatorHandle: number, signatures: Array<PartialThresholdSigWrapper>): Buffer
 export function validateSignature(groupKey: Buffer, signature: Buffer, context: Buffer, message: Buffer): void
