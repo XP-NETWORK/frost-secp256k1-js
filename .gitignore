@@ -1,7 +1,6 @@
 dist
 /target
 Cargo.lock
-index.node
-index.d.ts
+index.*
 node_modules
 out
