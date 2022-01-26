@@ -1,16 +1,15 @@
 name: CI
 env:
   DEBUG: napi:*
-  APP_NAME: frost-dalek
+  APP_NAME: frost-secp256k1
   MACOSX_DEPLOYMENT_TARGET: '10.13'
 'on':
   push:
     branches:
       - master
-  
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    if: '!contains(github.event.head_commit.message, ''skip ci'')'
     strategy:
       fail-fast: false
       matrix:
@@ -58,7 +57,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
           node-version: 16
           check-latest: true
           cache: pnpm
@@ -107,13 +106,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: index.node
-
+          path: frost-secp256k1.${{ matrix.settings.target }}.node
   publish:
     name: Publish
     runs-on: ubuntu-latest
     needs:
-      - 'build'
+      - build
     steps:
       - uses: actions/checkout@v2
       - name: install pnpm

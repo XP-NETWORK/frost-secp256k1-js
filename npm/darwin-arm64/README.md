@@ -1,3 +1,3 @@
-# `frost-darwin-arm64`
+# `frost-secp256k1-darwin-arm64`
 
-This is the **aarch64-apple-darwin** binary for `frost`
+This is the **aarch64-apple-darwin** binary for `frost-secp256k1`

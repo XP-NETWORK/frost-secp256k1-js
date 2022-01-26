@@ -13,7 +13,8 @@
         "x86_64-unknown-linux-gnu",
         "x86_64-unknown-linux-musl"
       ]
-    }
+    },
+    "name": "frost-secp256k1"
   },
   "scripts": {
     "create-dist": "mkdir -p dist",
