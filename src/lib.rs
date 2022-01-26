@@ -2,8 +2,8 @@ mod wrappers;
 
 use std::alloc::{dealloc, Layout};
 
-use curve25519_dalek::ristretto::RistrettoPoint;
-use frost_dalek::{Participant, Parameters, keygen::{Coefficients, RoundOne}, DistributedKeyGeneration, generate_commitment_share_lists, SignatureAggregator, GroupKey, IndividualPublicKey, compute_message_hash, precomputation::SecretCommitmentShareList, IndividualSecretKey, signature::{Initial, ThresholdSignature}};
+use frost_secp256k1::{Participant, Parameters, keygen::{Coefficients, RoundOne}, DistributedKeyGeneration, generate_commitment_share_lists, SignatureAggregator, GroupKey, IndividualPublicKey, compute_message_hash, precomputation::SecretCommitmentShareList, IndividualSecretKey, signature::{Initial, ThresholdSignature, PartialThresholdSignature}};
+use k256::{CompressedPoint, AffinePoint};
 use napi::{Result, Error, bindgen_prelude::Buffer};
 use napi_derive::napi;
 use rand_core::OsRng;
@@ -48,9 +48,9 @@ fn generate_their_shares_and_verify_participants(
             let participant = participant?;
 
             let pubk = participant.public_key()?;
-            participant.proof_of_secret_key.verify(&participant.index, pubk).ok()?;
+            participant.proof_of_secret_key.verify(&participant.index, &pubk).ok()?;
             Some(participant)
-        }).collect::<Option<Vec<Participant>>>().ok_or(Error::from_reason("failed to verify participants!".into()))?;
+        }).collect::<Option<Vec<Participant>>>().ok_or_else(|| Error::from_reason("failed to verify participants!".into()))?;
 
     let coeff: Box<Coefficients> = unsafe { from_handle(coefficients_handle) };
     let me_state = DistributedKeyGeneration::<_>::new(&params, &me.index, &coeff, &mut participants)
@@ -69,15 +69,22 @@ fn generate_their_shares_and_verify_participants(
 
 #[napi]
 fn derive_pubk_and_group_key(state_handle: i64, me: ParticipantWrapper, my_secret_shares: Vec<SecretShareWrapper>) -> Result<DeriveRes> {
-    let my_secret_shares = my_secret_shares.into_iter().map(|s| s.into()).collect();
+    let my_secret_shares = my_secret_shares.into_iter()
+        .map(|s| s.into())
+        .collect::<Option<Vec<_>>>()
+        .ok_or_else(|| Error::from_reason("invalid secret shares".into()))?;
+
     let my_state: Box<DistributedKeyGeneration<RoundOne>> = unsafe { from_handle(state_handle) };
     let my_state = my_state.to_round_two(my_secret_shares).map_err(|_| Error::from_reason("failed to move to round two".into()))?;
 
     let participant: Option<Participant> = me.into();
-    let participant = participant.ok_or(Error::from_reason("invalid participant".into()))?;
-    let pubk = participant.public_key().ok_or(Error::from_reason("failed to get public key".into()))?;
+    let participant = participant
+        .ok_or_else(|| Error::from_reason("invalid participant".into()))?;
+    let pubk = participant.public_key()
+        .ok_or_else(|| Error::from_reason("failed to get public key".into()))?;
 
-    let (group_key, secret_key) = my_state.finish(pubk).map_err(|_| Error::from_reason("failed to finish key generation".into()))?;
+    let (group_key, secret_key) = my_state.finish(&pubk)
+        .map_err(|_| Error::from_reason("failed to finish key generation".into()))?;
 
     Ok(DeriveRes {
         gk: group_key.to_bytes().to_vec().into(),
@@ -102,11 +109,11 @@ fn get_aggregator_signers(
     group_key: Buffer,
     context: Buffer,
     message: Buffer,
-    commitments: Vec<DualRistrettoWrap>,
+    commitments: Vec<DualSecp256k1Wrap>,
     public_keys: Vec<PublicKeyWrapper>
 ) -> Result<GenAggregatorRes> {
-    let gk = GroupKey::from_bytes(scalar_bytes_from_buff(group_key))
-        .map_err(|_| Error::from_reason("invalid group key".into()))?;
+    let gk = GroupKey::from_bytes(CompressedPoint::clone_from_slice(&group_key))
+        .ok_or_else(|| Error::from_reason("invalid group key".into()))?;
 
     let mut aggregator = SignatureAggregator::new(
         Parameters { n: num_sig, t: threshold },
@@ -116,10 +123,10 @@ fn get_aggregator_signers(
     );
 
     for (commitment, pubk) in commitments.into_iter().zip(public_keys.into_iter()) {
-        let commitment: Option<(RistrettoPoint, RistrettoPoint)> = commitment.into();
-        let commitment = commitment.ok_or(Error::from_reason("invalid commitment provided".into()))?;
+        let commitment: Option<(AffinePoint, AffinePoint)> = commitment.into();
+        let commitment = commitment.ok_or_else(|| Error::from_reason("invalid commitment provided".into()))?;
         let pubk: Option<IndividualPublicKey> = pubk.into();
-        let pubk = pubk.ok_or(Error::from_reason("invalid public key provided".into()))?;
+        let pubk = pubk.ok_or_else(|| Error::from_reason("invalid public key provided".into()))?;
         aggregator.include_signer(pubk.index, commitment, pubk);
     }
 
@@ -141,9 +148,11 @@ fn sign_partial(
     secret_comm_share_handle: i64,
     signers: Vec<SignerWrapper>
 ) -> Result<PartialThresholdSigWrapper> {
-    let sk: IndividualSecretKey = secret_key.into();
-    let gk = GroupKey::from_bytes(scalar_bytes_from_buff(group_key))
-        .map_err(|_| Error::from_reason("invalid group key".into()))?;
+    let sk: Option<IndividualSecretKey> = secret_key.into();
+    let sk = sk.ok_or_else(|| Error::from_reason("invalid secret key".into()))?;
+
+    let gk = GroupKey::from_bytes(CompressedPoint::clone_from_slice(&group_key))
+        .ok_or_else(|| Error::from_reason("invalid group key".into()))?;
 
     let message_hash = compute_message_hash(&context, &message);
     let mut secret_comm_share: Box<SecretCommitmentShareList> = unsafe { from_handle(secret_comm_share_handle) };
@@ -155,7 +164,7 @@ fn sign_partial(
         0,
         &signers.into_iter()
         .map(|v| v.into()).collect::<Option<Vec<_>>>()
-        .ok_or(Error::from_reason("invalid signers".into()))?
+        .ok_or_else(|| Error::from_reason("invalid signers".into()))?
     ).map(|sig| sig.into())
     .map_err(|e| Error::from_reason(format!("failed to sign message {}", e)))
 }
@@ -167,7 +176,9 @@ fn aggregate_signatures(
 ) -> Result<Buffer> {
     let mut aggregator: Box<SignatureAggregator<Initial>> = unsafe { from_handle(aggreator_handle) };
     for signature in signatures {
-        aggregator.include_partial_signature(signature.into());
+        let sig: Option<PartialThresholdSignature> = signature.into();
+        let sig = sig.ok_or_else(|| Error::from_reason("invalid partial signatures".into()))?;
+        aggregator.include_partial_signature(sig);
     }
     let aggregator = aggregator.finalize().map_err(|_| Error::from_reason("failed to finalize aggregation".into()))?;
     let sig = aggregator.aggregate().map_err(|_| Error::from_reason("failed to aggregate signatures".into()))?;
@@ -182,13 +193,13 @@ fn validate_signature(
     context: Buffer,
     message: Buffer
 ) -> Result<()> {
-    let gk = GroupKey::from_bytes(scalar_bytes_from_buff(group_key))
-        .map_err(|_| Error::from_reason("invalid group key".into()))?;
+    let gk = GroupKey::from_bytes(CompressedPoint::clone_from_slice(&group_key))
+        .ok_or_else(|| Error::from_reason("invalid group key".into()))?;
 
     let message_hash = compute_message_hash(&context, &message);
-    let mut sig = [0u8; 64];
+    let mut sig = [0u8; 65];
     sig.copy_from_slice(&signature);
-    let threshold_sig = ThresholdSignature::from_bytes(sig).map_err(|_| Error::from_reason("invalid threshold sig".into()))?;
+    let threshold_sig = ThresholdSignature::from_bytes(sig).ok_or_else(|| Error::from_reason("invalid threshold sig".into()))?;
 
     threshold_sig.verify(&gk, &message_hash).map_err(|_| Error::from_reason("threshold signature verification failed!".into()))?;
 
