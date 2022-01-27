@@ -10,7 +10,7 @@ crate-type=["cdylib"]
 
 [dependencies]
 rand_core = { version = "0.6", default-features = false, features = ["getrandom"] }
-frost-secp256k1 = { path = "./frost-secp256k1" } 
+frost-secp256k1 = { git = "https://github.com/XP-NETWORK/frost-secp256k1", rev = "ecd5d4bb676598acdde7061b960c3a26bd949e6c" } 
 k256 = "0.10"
 napi = "2"
 napi-derive = "2"

@@ -1,3 +1,0 @@
-[submodule "frost-dalek"]
-	path = frost-secp256k1
-	url = https://github.com/XP-NETWORK/frost-dalek
