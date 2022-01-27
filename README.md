@@ -1,10 +1,6 @@
-# frost-dalek-js
+# frost-secp256k1-js
 
-Low Level JS Bindings for [frost-dalek](https://github.com/isislovecruft/frost-dalek)
-
-## Submodules
-
-This repo has submodule(s). make sure to do a recursive close
+Low Level JS Bindings for [frost-secp256k1](https://github.com/XP-NETWORK/frost-secp256k1)
 
 ## Usage
 
