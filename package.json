@@ -2,7 +2,7 @@
   "name": "frost-secp256k1",
   "version": "0.0.2",
   "description": "low level JS Bindings for frost-secp256k1",
-  "main": "index.node",
+  "main": "dist/index.js",
   "napi": {
     "name": "frost-secp256k1"
   },
