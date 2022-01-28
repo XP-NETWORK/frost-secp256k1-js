@@ -4,16 +4,6 @@
   "description": "low level JS Bindings for frost-secp256k1",
   "main": "index.node",
   "napi": {
-    "triples": {
-      "default": false,
-      "additional": [
-        "aarch64-apple-darwin",
-        "x86_64-apple-darwin",
-        "x86_64-pc-windows-msvc",
-        "x86_64-unknown-linux-gnu",
-        "x86_64-unknown-linux-musl"
-      ]
-    },
     "name": "frost-secp256k1"
   },
   "scripts": {
