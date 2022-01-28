@@ -1,5 +1,5 @@
 [package]
-name = "frost-dalek-bind"
+name = "frost-secp256k1-bind"
 version = "0.1.0"
 edition = "2021"
 
