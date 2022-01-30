@@ -68,6 +68,7 @@ export function participate(uuid: number, numSig: number, threshold: number): Pa
 export function generateTheirSharesAndVerifyParticipants(me: ParticipantWrapper, coefficientsHandle: number, participants: Array<ParticipantWrapper>, numSig: number, threshold: number): ShareRes
 export function derivePubkAndGroupKey(stateHandle: number, me: ParticipantWrapper, mySecretShares: Array<SecretShareWrapper>): DeriveRes
 export function genCommitmentShareLists(uuid: number): GenCommitmentShareRes
+export function discardSecretShareHandle(handle: number): void
 export function getAggregatorSigners(threshold: number, numSig: number, groupKey: Buffer, context: Buffer, message: Buffer, commitments: Array<DualSecp256K1Wrap>, publicKeys: Array<PublicKeyWrapper>): GenAggregatorRes
 export function signPartial(secretKey: SecretKeyWrapper, groupKey: Buffer, context: Buffer, message: Buffer, secretCommShareHandle: number, signers: Array<SignerWrapper>): PartialThresholdSigWrapper
 export function aggregateSignatures(aggreatorHandle: number, signatures: Array<PartialThresholdSigWrapper>): Buffer
