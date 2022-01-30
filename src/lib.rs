@@ -103,6 +103,11 @@ fn gen_commitment_share_lists(uuid: u32) -> GenCommitmentShareRes {
 }
 
 #[napi]
+fn discard_secret_share_handle(handle: i64) {
+    unsafe { drop_handle::<SecretShareWrapper>(handle as usize) };
+}
+
+#[napi]
 fn get_aggregator_signers(
     threshold: u32,
     num_sig: u32,
