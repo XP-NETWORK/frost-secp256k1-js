@@ -20,7 +20,7 @@ import readline from "readline";
 	const coefficientsHandles = new Array<number>(n);
 
 	for (let i = 0; i < n; i++) {
-		const newPart = FROST.participate(i, n, t);
+		const newPart = FROST.participate(i+1, n, t);
 		participants[i] = newPart.participant;
 		coefficientsHandles[i] = newPart.coefficientsHandle;
 	}
