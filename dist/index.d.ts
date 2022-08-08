@@ -25,11 +25,11 @@ export interface SecretShareWrapper {
 }
 export interface ParticipateRes {
   participant: ParticipantWrapper
-  coefficientsHandle: number
+  coefficientsHandle: ExternalObject<Coefficients>
 }
 export interface ShareRes {
   theirSecretShares: Array<SecretShareWrapper>
-  stateHandle: number
+  stateHandle: ExternalObject<DistributedKeyGeneration | undefined | null>
 }
 export interface SecretKeyWrapper {
   index: number
@@ -50,14 +50,14 @@ export interface PubCommitmentShareListWrapper {
 }
 export interface GenCommitmentShareRes {
   publicCommShare: PubCommitmentShareListWrapper
-  secretCommShareHandle: number
+  secretCommShareHandle: ExternalObject<SecretCommitmentShareList>
 }
 export interface SignerWrapper {
   participantIndex: number
   publishedCommitmentShare: DualSecp256K1Wrap
 }
 export interface GenAggregatorRes {
-  aggregatorHandle: number
+  aggregatorHandle: ExternalObject<SignatureAggregator | undefined | null>
   signers: Array<SignerWrapper>
 }
 export interface PartialThresholdSigWrapper {
@@ -65,11 +65,10 @@ export interface PartialThresholdSigWrapper {
   z: Buffer
 }
 export function participate(uuid: number, numSig: number, threshold: number): ParticipateRes
-export function generateTheirSharesAndVerifyParticipants(me: ParticipantWrapper, coefficientsHandle: number, participants: Array<ParticipantWrapper>, numSig: number, threshold: number): ShareRes
-export function derivePubkAndGroupKey(stateHandle: number, me: ParticipantWrapper, mySecretShares: Array<SecretShareWrapper>): DeriveRes
+export function generateTheirSharesAndVerifyParticipants(me: ParticipantWrapper, coefficientsHandle: ExternalObject<Coefficients>, participants: Array<ParticipantWrapper>, numSig: number, threshold: number): ShareRes
+export function derivePubkAndGroupKey(stateHandle: ExternalObject<DistributedKeyGeneration | undefined | null>, me: ParticipantWrapper, mySecretShares: Array<SecretShareWrapper>): DeriveRes
 export function genCommitmentShareLists(uuid: number): GenCommitmentShareRes
-export function discardSecretShareHandle(handle: number): void
 export function getAggregatorSigners(threshold: number, numSig: number, groupKey: Buffer, context: Buffer, message: Buffer, commitments: Array<DualSecp256K1Wrap>, publicKeys: Array<PublicKeyWrapper>): GenAggregatorRes
-export function signPartial(secretKey: SecretKeyWrapper, groupKey: Buffer, context: Buffer, message: Buffer, secretCommShareHandle: number, signers: Array<SignerWrapper>): PartialThresholdSigWrapper
-export function aggregateSignatures(aggreatorHandle: number, signatures: Array<PartialThresholdSigWrapper>): Buffer
+export function signPartial(secretKey: SecretKeyWrapper, groupKey: Buffer, context: Buffer, message: Buffer, secretCommShareHandle: ExternalObject<SecretCommitmentShareList>, signers: Array<SignerWrapper>): PartialThresholdSigWrapper
+export function aggregateSignatures(aggregatorHandle: ExternalObject<SignatureAggregator | undefined | null>, signatures: Array<PartialThresholdSigWrapper>): Buffer
 export function validateSignature(groupKey: Buffer, signature: Buffer, context: Buffer, message: Buffer): void
