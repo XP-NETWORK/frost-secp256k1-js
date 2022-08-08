@@ -1,6 +1,6 @@
-use frost_secp256k1::{Participant, nizk::NizkOfSecretKey, keygen::SecretShare, IndividualSecretKey as SecretKey, precomputation::PublicCommitmentShareList, signature::{Signer, PartialThresholdSignature}, IndividualPublicKey};
+use frost_secp256k1::{Participant, nizk::NizkOfSecretKey, keygen::{SecretShare, Coefficients, RoundOne}, IndividualSecretKey as SecretKey, precomputation::{PublicCommitmentShareList, SecretCommitmentShareList}, signature::{Signer, PartialThresholdSignature, Initial}, IndividualPublicKey, DistributedKeyGeneration, SignatureAggregator};
 use k256::{Scalar, elliptic_curve::{PrimeField, group::GroupEncoding}, FieldBytes, AffinePoint, CompressedPoint, ProjectivePoint};
-use napi::bindgen_prelude::Buffer;
+use napi::bindgen_prelude::{Buffer, External};
 use napi_derive::napi;
 
 pub(crate) fn scalar_bytes_from_buff(buf: Buffer) -> FieldBytes {
@@ -114,13 +114,13 @@ impl Into<Option<SecretShare>> for SecretShareWrapper {
 #[napi(object)]
 pub(crate) struct ParticipateRes {
     pub participant: ParticipantWrapper,
-    pub coefficients_handle: i64
+    pub coefficients_handle: External<Coefficients>
 }
 
 #[napi(object)]
 pub(crate) struct ShareRes {
     pub their_secret_shares: Vec<SecretShareWrapper>,
-    pub state_handle: i64
+    pub state_handle: External<Option<DistributedKeyGeneration<RoundOne>>>
 }
 
 #[napi(object)]
@@ -205,7 +205,7 @@ impl Into<Option<PublicCommitmentShareList>> for PubCommitmentShareListWrapper {
 #[napi(object)]
 pub(crate) struct GenCommitmentShareRes {
     pub public_comm_share: PubCommitmentShareListWrapper,
-    pub secret_comm_share_handle: i64
+    pub secret_comm_share_handle: External<SecretCommitmentShareList>
 }
 
 #[napi(object)]
@@ -235,7 +235,7 @@ impl Into<Option<Signer>> for SignerWrapper {
 
 #[napi(object)]
 pub(crate) struct GenAggregatorRes {
-    pub aggregator_handle: i64,
+    pub aggregator_handle: External<Option<SignatureAggregator<Initial>>>,
     pub signers: Vec<SignerWrapper>
 }
 

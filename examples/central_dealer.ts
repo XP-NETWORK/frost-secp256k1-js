@@ -17,7 +17,7 @@ import readline from "readline";
 	console.log("");
 
 	const participants = new Array<FROST.ParticipantWrapper>(n);
-	const coefficientsHandles = new Array<number>(n);
+	const coefficientsHandles = new Array<FROST.ExternalObject<any>>(n);
 
 	for (let i = 0; i < n; i++) {
 		const newPart = FROST.participate(i+1, n, t);
@@ -25,7 +25,7 @@ import readline from "readline";
 		coefficientsHandles[i] = newPart.coefficientsHandle;
 	}
 
-	const participantsShareHandles = new Array<number>(n);
+	const participantsShareHandles = new Array<FROST.ExternalObject<any>>(n);
 	const participantsMyShares = Array.from(new Array(n), () => new Array<FROST.SecretShareWrapper>());
 
 	participants.forEach((participant, i) => {
@@ -69,7 +69,7 @@ Secret Key: ${keyRes.sk.key.toString("hex")}\n`
 	const context = Buffer.from("CONTEXT STRING", "ascii");
 	const message = Buffer.from("this a test", "ascii");
 	const pubComms = new Array<FROST.DualSecp256K1Wrap>();
-	const secretCommHandles = new Array<number>();
+	const secretCommHandles = new Array<FROST.ExternalObject<any>>();
 	const pubKSliced = new Array<FROST.PublicKeyWrapper>(t);
 
 	for (let i = 0; i < t; i++) {

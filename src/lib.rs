@@ -1,27 +1,13 @@
 mod wrappers;
 
-use std::alloc::{dealloc, Layout};
+use std::mem::size_of;
 
 use frost_secp256k1::{Participant, Parameters, keygen::{Coefficients, RoundOne}, DistributedKeyGeneration, generate_commitment_share_lists, SignatureAggregator, GroupKey, IndividualPublicKey, compute_message_hash, precomputation::SecretCommitmentShareList, IndividualSecretKey, signature::{Initial, ThresholdSignature, PartialThresholdSignature}};
 use k256::{CompressedPoint, AffinePoint};
-use napi::{Result, Error, bindgen_prelude::Buffer};
+use napi::{Result, Error, bindgen_prelude::{Buffer, External}};
 use napi_derive::napi;
 use rand_core::OsRng;
 use wrappers::*;
-
-fn into_boxed_handle<T>(v: T) -> i64 {
-    let bx = Box::new(v);
-    Box::into_raw(bx) as i64
-}
-
-unsafe fn from_handle<T>(handle: i64) -> Box<T> {
-    return Box::from_raw(handle as *mut T);
-}
-
-unsafe fn drop_handle<T>(handle: usize) {
-    std::ptr::drop_in_place(handle as *mut T);
-    dealloc(handle as *mut u8, Layout::new::<T>());
-}
 
 #[napi]
 fn participate(uuid: u32, num_sig: u32, threshold: u32) -> ParticipateRes {
@@ -29,14 +15,14 @@ fn participate(uuid: u32, num_sig: u32, threshold: u32) -> ParticipateRes {
     let (participant, coeff) = Participant::new(&params, uuid);
     ParticipateRes {
         participant: participant.into(),
-        coefficients_handle: into_boxed_handle(coeff)
+        coefficients_handle: External::new_with_size_hint(coeff, size_of::<Coefficients>())
     }
 }
 
 #[napi]
 fn generate_their_shares_and_verify_participants(
     me: ParticipantWrapper,
-    coefficients_handle: i64,
+    coefficients_handle: External<Coefficients>,
     participants: Vec<ParticipantWrapper>,
     num_sig: u32,
     threshold: u32
@@ -52,8 +38,7 @@ fn generate_their_shares_and_verify_participants(
             Some(participant)
         }).collect::<Option<Vec<Participant>>>().ok_or_else(|| Error::from_reason("failed to verify participants!"))?;
 
-    let coeff: Box<Coefficients> = unsafe { from_handle(coefficients_handle) };
-    let me_state = DistributedKeyGeneration::<_>::new(&params, &me.index, &coeff, &mut participants)
+    let me_state = DistributedKeyGeneration::<_>::new(&params, &me.index, coefficients_handle.as_ref(), &mut participants)
         .map_err(|e| Error::from_reason(
             format!("failed to generate distributed key. misbehaving participants: {:?}", e)
         ))?;
@@ -63,19 +48,20 @@ fn generate_their_shares_and_verify_participants(
     Ok(ShareRes {
         their_secret_shares: their_secret_shares.into_iter()
             .map(|s| s.clone().into()).collect(),
-        state_handle: into_boxed_handle(me_state)
+        state_handle: External::new(Some(me_state))
     })
 }
 
 #[napi]
-fn derive_pubk_and_group_key(state_handle: i64, me: ParticipantWrapper, my_secret_shares: Vec<SecretShareWrapper>) -> Result<DeriveRes> {
+fn derive_pubk_and_group_key(mut state_handle: External<Option<DistributedKeyGeneration<RoundOne>>>, me: ParticipantWrapper, my_secret_shares: Vec<SecretShareWrapper>) -> Result<DeriveRes> {
     let my_secret_shares = my_secret_shares.into_iter()
         .map(|s| s.into())
         .collect::<Option<Vec<_>>>()
         .ok_or_else(|| Error::from_reason("invalid secret shares"))?;
 
-    let my_state: Box<DistributedKeyGeneration<RoundOne>> = unsafe { from_handle(state_handle) };
-    let my_state = my_state.to_round_two(my_secret_shares).map_err(|_| Error::from_reason("failed to move to round two"))?;
+    let my_state = state_handle.take()
+        .expect("invalid state handle!")
+        .to_round_two(my_secret_shares).map_err(|_| Error::from_reason("failed to move to round two"))?;
 
     let participant: Option<Participant> = me.into();
     let participant = participant
@@ -98,13 +84,8 @@ fn gen_commitment_share_lists(uuid: u32) -> GenCommitmentShareRes {
     let (pub_comm_share, secret_comm) = generate_commitment_share_lists(&mut OsRng, uuid, 1);
     GenCommitmentShareRes {
         public_comm_share: pub_comm_share.into(),
-        secret_comm_share_handle: into_boxed_handle(secret_comm)
+        secret_comm_share_handle: External::new_with_size_hint(secret_comm, size_of::<SecretCommitmentShareList>())
     }
-}
-
-#[napi]
-fn discard_secret_share_handle(handle: i64) {
-    unsafe { drop_handle::<SecretShareWrapper>(handle as usize) };
 }
 
 #[napi]
@@ -136,7 +117,7 @@ fn get_aggregator_signers(
     }
 
     let signers = aggregator.get_signers().clone();
-    let aggregator_handle = into_boxed_handle::<SignatureAggregator<Initial>>(aggregator);
+    let aggregator_handle = External::new(Some(aggregator));
 
     Ok(GenAggregatorRes {
         signers: signers.into_iter().map(|v| v.into()).collect(),
@@ -150,7 +131,7 @@ fn sign_partial(
     group_key: Buffer,
     context: Buffer,
     message: Buffer,
-    secret_comm_share_handle: i64,
+    mut secret_comm_share_handle: External<SecretCommitmentShareList>,
     signers: Vec<SignerWrapper>
 ) -> Result<PartialThresholdSigWrapper> {
     let sk: Option<IndividualSecretKey> = secret_key.into();
@@ -160,12 +141,11 @@ fn sign_partial(
         .ok_or_else(|| Error::from_reason("invalid group key"))?;
 
     let message_hash = compute_message_hash(&context, &message);
-    let mut secret_comm_share: Box<SecretCommitmentShareList> = unsafe { from_handle(secret_comm_share_handle) };
 
     sk.sign(
         &message_hash,
         &gk,
-        &mut secret_comm_share,
+        secret_comm_share_handle.as_mut(),
         0,
         &signers.into_iter()
         .map(|v| v.into()).collect::<Option<Vec<_>>>()
@@ -176,10 +156,10 @@ fn sign_partial(
 
 #[napi]
 fn aggregate_signatures(
-    aggreator_handle: i64,
+    mut aggregator_handle: External<Option<SignatureAggregator<Initial>>>,
     signatures: Vec<PartialThresholdSigWrapper>
 ) -> Result<Buffer> {
-    let mut aggregator: Box<SignatureAggregator<Initial>> = unsafe { from_handle(aggreator_handle) };
+    let mut aggregator = aggregator_handle.take().expect("Invalid aggregator handle!");
     for signature in signatures {
         let sig: Option<PartialThresholdSignature> = signature.into();
         let sig = sig.ok_or_else(|| Error::from_reason("invalid partial signatures"))?;
